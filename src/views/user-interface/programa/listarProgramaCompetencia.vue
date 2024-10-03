@@ -1,5 +1,5 @@
 <template>
-  <VCard title="LISTADO  DE COMPETENCIAS">
+  <VCard title="LISTADO DE COMPETENCIAS DE PROGRAMAS">
     <template v-slot:text>
       <v-text-field
         v-model="search"
@@ -10,6 +10,15 @@
         single-line
       ></v-text-field>
     </template>
+    <v-select
+      v-model="programaSelected"
+      label="Programa"
+      :items="programs"
+      item-title="nombre"
+      item-value="id"
+      class="mx-auto w-50"
+      @update:model-value="recargar"
+    ></v-select>
     <VCardText class="d-flex flex-column gap-y-8">
       <v-data-table
         :headers="headers"
@@ -58,6 +67,8 @@ export default {
   data() {
     return {
       search: '',
+      programaSelected: null,
+      programs: [],
       competencias: [],
       show: false,
       codigo: null,
@@ -76,12 +87,24 @@ export default {
   },
   async mounted() {
     this.recargar()
+
+    this.fetchProgramas()
   },
   methods: {
     async recargar() {
-      const response = await axios.get('http://localhost:3000/competencia/')
+      const response = await axios.get(`http://localhost:3000/programa/${this.programaSelected}/competencias`)
       this.competencias = response.data
+
       this.$emit('plistado')
+    },
+
+    async fetchProgramas() {
+      try {
+        const response = await axios.get('http://localhost:3000/programa')
+        this.programs = response.data
+      } catch (error) {
+        console.error('Error fetching programs:', error)
+      }
     },
 
     editProgram(item) {
@@ -98,7 +121,7 @@ export default {
     },
 
     async deleteProgram(codigo) {
-      const response = await axios.delete(`http://localhost:3000/competencia/${codigo}`)
+      const response = await axios.delete(`http://localhost:3000/programa/codigo/${codigo}`)
       this.$notify({ text: 'Programa eliminado con éxito...', type: 'success' })
       this.show = false
       this.codigo = null

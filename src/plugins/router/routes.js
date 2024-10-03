@@ -21,6 +21,10 @@ export const routes = [
         component: () => import('@/pages/programa/programa.vue'),
       },
       {
+        path: 'programa-asignar',
+        component: () => import('@/pages/programa/asignarCompetencias.vue'),
+      },
+      {
         path: 'competencia',
         component: () => import('@/pages/competencia/competencia.vue'),
       },
