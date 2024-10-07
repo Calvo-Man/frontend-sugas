@@ -1,7 +1,7 @@
 <script setup>
-import VerticalNavSectionTitle from '@/@layouts/components/VerticalNavSectionTitle.vue';
-import VerticalNavGroup from '@layouts/components/VerticalNavGroup.vue';
-import VerticalNavLink from '@layouts/components/VerticalNavLink.vue';
+import VerticalNavSectionTitle from '@/@layouts/components/VerticalNavSectionTitle.vue'
+import VerticalNavGroup from '@layouts/components/VerticalNavGroup.vue'
+import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
 </script>
 
 <template>
@@ -11,44 +11,48 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue';
       title: 'Programa',
       badgeClass: 'bg-error',
       icon: 'ri-home-smile-line',
-     
     }"
   >
-    
     <VerticalNavLink
+      v-if="userRole === 'admin'"
       :item="{
         title: 'Crear Programa',
         badgeClass: 'bg-light-primary text-primary',
-        to: '/programa',
+        to: 'programa',
+      }"
+    />
+    <VerticalNavLink
+      v-if="userRole === 'admin'"
+      :item="{
+        title: 'Asignar Comptencias',
+        badgeClass: 'bg-light-primary text-primary',
+        to: 'programa-asignar',
       }"
     />
     <VerticalNavLink
       :item="{
-        title: 'Asignar Comptencias',
+        title: 'Ver programas',
         badgeClass: 'bg-light-primary text-primary',
-        to: '/programa-asignar',
+        to: 'ver-programas',
       }"
     />
-   
   </VerticalNavGroup>
 
   <VerticalNavGroup
-  :item="{
-    title: 'Competencia',
-    badgeClass: 'bg-error',
-    icon: 'ri-home-smile-line',
-   
-  }"
->
-
-<VerticalNavLink
+    :item="{
+      title: 'Competencia',
+      badgeClass: 'bg-error',
+      icon: 'ri-home-smile-line',
+    }"
+  >
+    <VerticalNavLink
       :item="{
         title: 'Crear Competencia',
         badgeClass: 'bg-light-primary text-primary',
-        to: '/competencia',
+        to: 'competencia',
       }"
     />
-</VerticalNavGroup>
+  </VerticalNavGroup>
 
   <!-- 👉 Front Pages -->
   <VerticalNavGroup
@@ -147,22 +151,16 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue';
     :item="{
       title: 'Account Settings',
       icon: 'ri-user-settings-line',
-      to: '/account-settings',
+      to: 'account-settings',
     }"
   />
 
   <VerticalNavLink
-    :item="{
-      title: 'Login',
-      icon: 'ri-login-box-line',
-      to: '/login',
-    }"
-  />
-  <VerticalNavLink
+    v-if="userRole === 'admin'"
     :item="{
       title: 'Register',
       icon: 'ri-user-add-line',
-      to: '/register',
+      to: 'register',
     }"
   />
   <VerticalNavLink
@@ -183,21 +181,21 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue';
     :item="{
       title: 'Typography',
       icon: 'ri-text',
-      to: '/typography',
+      to: 'typography',
     }"
   />
   <VerticalNavLink
     :item="{
       title: 'Icons',
       icon: 'ri-remixicon-line',
-      to: '/icons',
+      to: 'icons',
     }"
   />
   <VerticalNavLink
     :item="{
       title: 'Cards',
       icon: 'ri-bar-chart-box-line',
-      to: '/cards',
+      to: 'cards',
     }"
   />
 
@@ -211,7 +209,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue';
     :item="{
       title: 'Form Layouts',
       icon: 'ri-layout-4-line',
-      to: '/form-layouts',
+      to: 'form-layouts',
     }"
   />
   <VerticalNavLink
@@ -238,7 +236,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue';
     :item="{
       title: 'Tables',
       icon: 'ri-table-alt-line',
-      to: '/tables',
+      to: 'tables',
     }"
   />
 
@@ -275,3 +273,12 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue';
     }"
   />
 </template>
+<script>
+export default {
+  computed: {
+    userRole() {
+      return this.$store.state.user.rol // Obtener el rol desde el store
+    },
+  },
+}
+</script>

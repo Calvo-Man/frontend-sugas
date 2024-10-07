@@ -1,12 +1,10 @@
 <script setup>
-import { useTheme } from 'vuetify'
-import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import logo from '@images/logo.svg?raw'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
 import authV1MaskLight from '@images/pages/auth-v1-mask-light.png'
 import authV1Tree2 from '@images/pages/auth-v1-tree-2.png'
 import authV1Tree from '@images/pages/auth-v1-tree.png'
-
+import { useTheme } from 'vuetify'
 const form = ref({
   email: '',
   password: '',
@@ -23,8 +21,6 @@ const isPasswordVisible = ref(false)
 </script>
 
 <template>
-  <!-- eslint-disable vue/no-v-html -->
-
   <div class="auth-wrapper d-flex align-center justify-center pa-4">
     <VCard
       class="auth-card pa-4 pt-7"
@@ -40,38 +36,38 @@ const isPasswordVisible = ref(false)
             class="d-flex"
             v-html="logo"
           />
-          <h2 class="font-weight-medium text-2xl text-uppercase">
-            Materio
-          </h2>
+          <h2 class="font-weight-medium text-2xl text-uppercase">Materio</h2>
         </RouterLink>
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h4 class="text-h4 mb-1">
-          Welcome to Materio! 👋🏻
-        </h4>
-        <p class="mb-0">
-          Please sign-in to your account and start the adventure
-        </p>
+        <h4 class="text-h4 mb-1">Welcome to Materio! 👋🏻</h4>
+        <p class="mb-0">Please sign-in to your account and start the adventure</p>
       </VCardText>
 
       <VCardText>
-        <VForm @submit.prevent="() => {}">
+        <v-form
+          ref="form"
+          validate-on="login lazy"
+          @submit.prevent="login"
+        >
           <VRow>
             <!-- email -->
             <VCol cols="12">
-              <VTextField
-                v-model="form.email"
+              <v-text-field
+                v-model="email"
+                :rules="emailRules"
                 label="Email"
-                type="email"
+                placeholder="example@example.com"
               />
             </VCol>
 
             <!-- password -->
             <VCol cols="12">
-              <VTextField
-                v-model="form.password"
+              <v-text-field
+                v-model="password"
                 label="Password"
+                :rules="passwordRules"
                 placeholder="············"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
@@ -97,7 +93,7 @@ const isPasswordVisible = ref(false)
               <VBtn
                 block
                 type="submit"
-                to="/"
+                @click="login"
               >
                 Login
               </VBtn>
@@ -116,25 +112,8 @@ const isPasswordVisible = ref(false)
                 Create an account
               </RouterLink>
             </VCol>
-
-            <VCol
-              cols="12"
-              class="d-flex align-center"
-            >
-              <VDivider />
-              <span class="mx-4">or</span>
-              <VDivider />
-            </VCol>
-
-            <!-- auth providers -->
-            <VCol
-              cols="12"
-              class="text-center"
-            >
-              <AuthProvider />
-            </VCol>
           </VRow>
-        </VForm>
+        </v-form>
       </VCardText>
     </VCard>
 
@@ -157,7 +136,59 @@ const isPasswordVisible = ref(false)
     />
   </div>
 </template>
+<script>
+import axios from 'axios'
 
+export default {
+  data: () => ({
+    API: process.env.VUE_APP_API,
+    loading: false,
+    email: '',
+    emailRules: [
+      value => !!value || 'E-mail is required.',
+      value => /.+@.+\..+/.test(value) || 'E-mail must be valid.',
+    ],
+    password: '',
+    passwordRules: [
+      value => !!value || 'Password is required.',
+      // Agregar más reglas según sea necesario
+    ],
+  }),
+  methods: {
+    async login() {
+      const isValid = this.$refs.form.validate() // Valida el formulario
+
+      if (!isValid) {
+        console.log('Formulario no válido')
+        return // Si el formulario no es válido, no se envía
+      }
+
+      try {
+        const response = await axios.post(`http://localhost:3000/auth/login`, {
+          email: this.email,
+          password: this.password,
+        })
+
+        this.$store.commit('setUser', response.data)
+
+        this.$store.dispatch('login')
+        this.$router.push({ path: '/sugas' })
+      } catch (error) {
+        if (error.response) {
+          console.error('Error de respuesta:', error.response.data)
+          console.error('Código de estado:', error.response.status)
+          console.error('Encabezados:', error.response.headers)
+        } else if (error.request) {
+          console.error('Sin respuesta del servidor:', error.request)
+        } else {
+          console.error('Error en la solicitud:', error.message)
+        }
+        console.error('Configuración completa del error:', error.config)
+      }
+    },
+  },
+}
+</script>
 <style lang="scss">
-@use "@core/scss/template/pages/page-auth";
+@use '@core/scss/template/pages/page-auth';
 </style>

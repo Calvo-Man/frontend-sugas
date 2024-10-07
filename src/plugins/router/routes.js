@@ -1,8 +1,29 @@
 export const routes = [
- // { path: '/', redirect: '/dashboard' },
   {
-    path: '/',
+    path: '',
+    name: 'login',
+    meta: { requiresAuth: false },
+    component: () => import('@/layouts/blank.vue'),
+    redirect: 'login',
+    children: [
+      {
+        path: 'login',
+        component: () => import('@/pages/login.vue'),
+      },
+      {
+        path: '/:pathMatch(.*)*',
+        redirect: 'login',
+        component: () => import('@/pages/[...error].vue'), // Para rutas no encontradas
+      },
+    ],
+  },
+  {
+    path: '/sugas',
+    name: 'sugas',
+    meta: { requiresAuth: true },
     component: () => import('@/layouts/default.vue'),
+
+    redirect: 'sugas/dashboard',
     children: [
       {
         path: 'dashboard',
@@ -18,11 +39,17 @@ export const routes = [
       },
       {
         path: 'programa',
+        meta: { requiresAdmin: true },
         component: () => import('@/pages/programa/programa.vue'),
       },
       {
         path: 'programa-asignar',
+        meta: { requiresAdmin: true },
         component: () => import('@/pages/programa/asignarCompetencias.vue'),
+      },
+      {
+        path: 'ver-programas',
+        component: () => import('@/pages/programa/verProgramas.vue'),
       },
       {
         path: 'competencia',
@@ -44,23 +71,10 @@ export const routes = [
         path: 'form-layouts',
         component: () => import('@/pages/form-layouts.vue'),
       },
-    ],
-  },
-  {
-    path: '/',
-    component: () => import('@/layouts/blank.vue'),
-    children: [
-      {
-        path: 'login',
-        component: () => import('@/pages/login.vue'),
-      },
       {
         path: 'register',
+        meta: { requiresAdmin: true },
         component: () => import('@/pages/register.vue'),
-      },
-      {
-        path: '/:pathMatch(.*)*',
-        component: () => import('@/pages/[...error].vue'),
       },
     ],
   },

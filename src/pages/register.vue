@@ -1,11 +1,10 @@
 <script setup>
-import { useTheme } from 'vuetify'
-import AuthProvider from '@/views/pages/authentication/AuthProvider.vue'
 import logo from '@images/logo.svg?raw'
 import authV1MaskDark from '@images/pages/auth-v1-mask-dark.png'
 import authV1MaskLight from '@images/pages/auth-v1-mask-light.png'
 import authV1Tree2 from '@images/pages/auth-v1-tree-2.png'
 import authV1Tree from '@images/pages/auth-v1-tree.png'
+import { useTheme } from 'vuetify'
 
 const form = ref({
   username: '',
@@ -41,19 +40,13 @@ const isPasswordVisible = ref(false)
             class="d-flex"
             v-html="logo"
           />
-          <h2 class="font-weight-medium text-2xl text-uppercase">
-            Materio
-          </h2>
+          <h2 class="font-weight-medium text-2xl text-uppercase">Materio</h2>
         </RouterLink>
       </VCardItem>
 
       <VCardText class="pt-2">
-        <h4 class="text-h4 mb-1">
-          Adventure starts here 🚀
-        </h4>
-        <p class="mb-0">
-          Make your app management easy and fun!
-        </p>
+        <h4 class="text-h4 mb-1">Adventure starts here 🚀</h4>
+        <p class="mb-0">Make your app management easy and fun!</p>
       </VCardText>
 
       <VCardText>
@@ -62,31 +55,57 @@ const isPasswordVisible = ref(false)
             <!-- Username -->
             <VCol cols="12">
               <VTextField
-                v-model="form.username"
-                label="Username"
-                placeholder="Johndoe"
+                v-model="paquete.name"
+                label="Nombre"
+                type="text"
               />
             </VCol>
             <!-- email -->
             <VCol cols="12">
               <VTextField
-                v-model="form.email"
+                v-model="paquete.email"
                 label="Email"
                 placeholder="johndoe@email.com"
                 type="email"
               />
             </VCol>
 
+            <!-- cedula -->
+            <VCol cols="12">
+              <VTextField
+                v-model="paquete.cedula"
+                label="Cedula"
+                type="number"
+              />
+            </VCol>
+
+            <!-- telefono -->
+            <VCol cols="12">
+              <VTextField
+                v-model="paquete.telefono"
+                label="Telefono"
+                type="number"
+              />
+            </VCol>
             <!-- password -->
             <VCol cols="12">
               <VTextField
-                v-model="form.password"
+                v-model="paquete.password"
                 label="Password"
                 placeholder="············"
                 :type="isPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isPasswordVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
                 @click:append-inner="isPasswordVisible = !isPasswordVisible"
               />
+
+              <!-- rol -->
+              <VCol cols="12">
+                <VTextField
+                  v-model.number="paquete.role"
+                  label="Rol"
+                  type="number"
+                />
+              </VCol>
               <div class="d-flex align-center my-6">
                 <VCheckbox
                   id="privacy-policy"
@@ -95,54 +114,23 @@ const isPasswordVisible = ref(false)
                 />
                 <VLabel
                   for="privacy-policy"
-                  style="opacity: 1;"
+                  style="opacity: 1"
                 >
                   <span class="me-1">I agree to</span>
                   <a
                     href="javascript:void(0)"
                     class="text-primary"
-                  >privacy policy & terms</a>
+                    >privacy policy & terms</a
+                  >
                 </VLabel>
               </div>
 
               <VBtn
                 block
-                type="submit"
-                to="/"
+                @click="registrar"
               >
                 Sign up
               </VBtn>
-            </VCol>
-
-            <!-- login instead -->
-            <VCol
-              cols="12"
-              class="text-center text-base"
-            >
-              <span>Already have an account?</span>
-              <RouterLink
-                class="text-primary ms-2"
-                to="login"
-              >
-                Sign in instead
-              </RouterLink>
-            </VCol>
-
-            <VCol
-              cols="12"
-              class="d-flex align-center"
-            >
-              <VDivider />
-              <span class="mx-4">or</span>
-              <VDivider />
-            </VCol>
-
-            <!-- auth providers -->
-            <VCol
-              cols="12"
-              class="text-center"
-            >
-              <AuthProvider />
             </VCol>
           </VRow>
         </VForm>
@@ -168,7 +156,69 @@ const isPasswordVisible = ref(false)
     />
   </div>
 </template>
+<script>
+import axios from 'axios'
+import store from '../../store/index.js'
+export default {
+  props: {
+    estado: {
+      type: Boolean,
+      required: true,
+    },
+    item: {
+      type: Object,
+      default: null,
+    },
+  },
+  data() {
+    return {
+      valid: false,
+      paquete: {
+        name: '',
+        email: '',
+        cedula: '',
+        telefono: '',
+        password: '',
+        role: null,
+      },
+      id: null,
+      dialog: false,
+      rules: {
+        required: value => !!value || 'Este campo es obligatorio.',
+      },
+    }
+  },
 
+  methods: {
+    async registrar() {
+      try {
+        this.dialog = true
+
+        const response = await axios.post('http://localhost:3000/auth/register', this.paquete, {
+          headers: {
+            Authorization: `Bearer ${store.getters.getUser.access_token}`,
+          },
+        })
+
+        console.log(response.data) // Suponiendo que la respuesta incluye un mensaje.
+        this.$notify({ text: 'Usuario guardado con éxito...', type: 'success' }) // Cambia el tipo según sea necesario);
+        this.resetForm()
+        this.$emit('pguardar')
+        this.dialog = false
+      } catch (error) {
+        console.error('Error al enviar datos:', error)
+      }
+    },
+
+    resetForm() {
+      this.codigo = ''
+      this.nombre = ''
+      this.version = ''
+      this.$refs.form.reset()
+    },
+  },
+}
+</script>
 <style lang="scss">
-@use "@core/scss/template/pages/page-auth";
+@use '@core/scss/template/pages/page-auth';
 </style>

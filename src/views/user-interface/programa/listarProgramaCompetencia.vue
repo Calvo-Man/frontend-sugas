@@ -38,7 +38,7 @@
           <v-btn
             color="error"
             icon
-            @click="predelete(item.codigo)"
+            @click="predelete(item.id)"
           >
             <v-icon icon="ri-delete-bin-line"></v-icon>
           </v-btn>
@@ -92,7 +92,11 @@ export default {
   },
   methods: {
     async recargar() {
-      const response = await axios.get(`http://localhost:3000/programa/${this.programaSelected}/competencias`)
+      const response = await axios.get(`http://localhost:3000/programa/${this.programaSelected}/competencias`, {
+        headers: {
+          Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+        },
+      })
       this.competencias = response.data
 
       this.$emit('plistado')
@@ -100,7 +104,11 @@ export default {
 
     async fetchProgramas() {
       try {
-        const response = await axios.get('http://localhost:3000/programa')
+        const response = await axios.get('http://localhost:3000/programa', {
+          headers: {
+            Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+          },
+        })
         this.programs = response.data
       } catch (error) {
         console.error('Error fetching programs:', error)
@@ -121,7 +129,10 @@ export default {
     },
 
     async deleteProgram(codigo) {
-      const response = await axios.delete(`http://localhost:3000/programa/codigo/${codigo}`)
+      console.log(codigo)
+      const response = await axios.delete(
+        `http://localhost:3000/programa-competencias/${this.programaSelected}/competencia/${this.codigo}`,
+      )
       this.$notify({ text: 'Programa eliminado con éxito...', type: 'success' })
       this.show = false
       this.codigo = null

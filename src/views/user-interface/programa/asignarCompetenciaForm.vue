@@ -27,6 +27,7 @@
           :rules="[rules.required]"
           required
           :disabled="!paquete.programa"
+          :item-disabled="competencia => competenciaDeshabilitada(competencia)"
           class="mb-2"
         ></v-select>
 
@@ -148,9 +149,8 @@ export default {
       this.fetchCompetencias() // Cargar todas las competencias
     },
 
-    competenciaDeshabilitada(item) {
-      console.log(item)
-      return this.competencias.id
+    competenciaDeshabilitada(competencia) {
+      console.log(this.competenciasAsignadas.some(item => item.id === competencia.id))
     },
 
     resetForm() {
