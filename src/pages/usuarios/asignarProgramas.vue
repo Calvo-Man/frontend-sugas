@@ -2,11 +2,11 @@
   <div>
     <VRow>
       <VCol cols="12">
-        <asignarCompetenciaForm
+        <AsignarProgramas
           @guardarc="actualizarestado"
           :item="competencia"
           @peditar="actualizarestado"
-        ></asignarCompetenciaForm>
+        ></AsignarProgramas>
       </VCol>
 
       <VCol cols="12">
@@ -21,11 +21,11 @@
 </template>
 
 <script>
-import asignarCompetenciaForm from '@/views/user-interface/programa/asignarCompetenciaForm.vue'
 import ListarProgramaCompetencia from '@/views/user-interface/programa/listarProgramaCompetencia.vue'
+import AsignarProgramas from '@/views/user-interface/usuarios/asignarProgramas.vue'
 
 export default {
-  components: { asignarCompetenciaForm, ListarProgramaCompetencia },
+  components: { ListarProgramaCompetencia, AsignarProgramas },
   data() {
     return {
       estado: false,

@@ -1,32 +1,32 @@
 <template>
-  <VCard title="ASIGNAR COMPETENCIA A PROGRAMA">
+  <VCard title="ASIGNAR PROGRAMAS A INSTRUCTORES">
     <VCardText class="d-flex flex-column gap-y-8">
       <v-form
         ref="form"
         v-model="valid"
       >
         <v-select
-          v-model="paquete.programa"
-          label="Programa"
-          :items="programas"
-          item-title="nombre"
+          v-model="paquete.instructor"
+          label="Instructor"
+          :items="instructores"
+          item-title="name"
           item-value="id"
           :rules="[rules.required]"
           required
           class="mb-2"
-          @update:model-value="fetchCompetenciasAsignadas"
+          @update:model-value="fetchProgramasNoAsignados"
         ></v-select>
 
         <v-select
-          v-model="paquete.competencia"
-          label="Competencia"
-          :items="competencias"
+          v-model="paquete.programa"
+          label="Programas"
+          :items="programasNoAsignados"
           item-title="nombre"
           item-value="id"
           multiple
           :rules="[rules.required]"
           required
-          :disabled="!paquete.programa"
+          :disabled="!paquete.instructor"
           :item-disabled="competencia => competenciaDeshabilitada(competencia)"
           class="mb-2"
         ></v-select>
@@ -69,11 +69,12 @@ export default {
     return {
       valid: false,
       programas: [],
-      competencias: [],
-      competenciasAsignadas: [],
+      instructores: [],
+      programasAsignadas: [],
+      programasNoAsignados: [],
       paquete: {
-        programa: null,
-        competencia: [],
+        instructor: null,
+        programa: [],
       },
       id: null,
       dialog: false,
@@ -83,6 +84,7 @@ export default {
     }
   },
   mounted() {
+    this.fetchInstructores()
     this.fetchProgramas()
   },
   methods: {
@@ -90,10 +92,12 @@ export default {
       if (this.$refs.form.validate()) {
         try {
           this.dialog = true
-          const response = await axios.post('http://localhost:3000/programa-competencias', this.paquete)
+          const response = await axios.post('http://localhost:3000/programas-instructor', this.paquete, {
+            headers: { Authorization: `Bearer ${this.$store.getters.getUser.access_token}` },
+          })
 
           console.log(response.data)
-          this.$notify({ text: 'Programa guardado con éxito...', type: 'success' })
+          this.$notify({ text: 'Programas asignados con éxito...', type: 'success' })
           this.resetForm()
           this.$emit('pguardar')
           this.dialog = false
@@ -105,48 +109,80 @@ export default {
       }
     },
 
-    async editar() {
+    // async editar() {
+    //   try {
+    //     this.dialog = true
+    //     const response = await axios.patch(`http://localhost:3000/programa/${this.id}`, this.paquete)
+    //     this.$notify({ text: 'Programa editado con éxito...', type: 'success' })
+    //     this.resetForm()
+    //     this.$emit('peditar')
+    //     this.dialog = false
+    //   } catch (error) {
+    //     console.error('Error al enviar datos:', error)
+    //   }
+    // },
+
+    async fetchInstructores() {
       try {
-        this.dialog = true
-        const response = await axios.patch(`http://localhost:3000/programa/${this.id}`, this.paquete)
-        this.$notify({ text: 'Programa editado con éxito...', type: 'success' })
-        this.resetForm()
-        this.$emit('peditar')
-        this.dialog = false
+        const response = await axios.get('http://localhost:3000/user', {
+          headers: {
+            Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+          },
+        })
+        this.instructores = response.data
       } catch (error) {
-        console.error('Error al enviar datos:', error)
+        console.error('Error fetching instructors:', error)
       }
+      this.fetchProgramasNoAsignados()
     },
 
     async fetchProgramas() {
       try {
-        const response = await axios.get('http://localhost:3000/programa')
+        const response = await axios.get('http://localhost:3000/programa', {
+          headers: {
+            Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+          },
+        })
         this.programas = response.data
       } catch (error) {
         console.error('Error fetching programs:', error)
       }
     },
 
-    async fetchCompetencias() {
-      try {
-        const response = await axios.get('http://localhost:3000/competencia')
-        this.competencias = response.data
-        console.log(this.competencias)
-      } catch (error) {
-        console.error('Error fetching competencies:', error)
-      }
-    },
-
-    async fetchCompetenciasAsignadas() {
-      if (this.paquete.programa) {
+    async fetchProgramasAsignadas() {
+      if (this.paquete.instructor) {
         try {
-          const response = await axios.get(`http://localhost:3000/programa/${this.paquete.programa}/competencias`)
-          this.competenciasAsignadas = response.data // Guardar las competencias asignadas
+          const response = await axios.get(
+            `http://localhost:3000/user/${this.paquete.instructor}/programas-asignados`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+              },
+            },
+          )
+          this.programasAsignados = response.data // Guardar las competencias asignadas
         } catch (error) {
           console.error('Error fetching assigned competencies:', error)
         }
       }
-      this.fetchCompetencias() // Cargar todas las competencias
+      this.fetchProgramas() // Cargar todas las competencias
+    },
+    async fetchProgramasNoAsignados() {
+      if (this.paquete.instructor) {
+        try {
+          const response = await axios.get(
+            `http://localhost:3000/user/${this.paquete.instructor}/programas-no-asignados`,
+            {
+              headers: {
+                Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+              },
+            },
+          )
+          this.programasNoAsignados = response.data // Guardar las competencias asignadas
+        } catch (error) {
+          console.error('Error fetching assigned competencies:', error)
+        }
+      }
     },
 
     /*************  ✨ Codeium Command ⭐  *************/

@@ -23,7 +23,7 @@
         ></v-text-field>
 
         <v-text-field
-          v-model="paquete.version"
+          v-model.number="paquete.version"
           label="Version"
           type="number"
           :rules="[rules.required]"
@@ -87,7 +87,7 @@ export default {
           this.dialog = true
           const response = await axios.post('http://localhost:3000/programa/CrearPrograma', this.paquete, {
             headers: {
-              Authorization: `Bearer ${store.getters.getUser.access_token}`,
+              Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
             },
           })
 
