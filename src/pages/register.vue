@@ -87,6 +87,8 @@ const isPasswordVisible = ref(false)
                 type="number"
               />
             </VCol>
+            <!-- programas -->
+
             <!-- password -->
             <VCol cols="12">
               <VTextField
@@ -100,16 +102,20 @@ const isPasswordVisible = ref(false)
 
               <!-- rol -->
               <VCol cols="12">
-                <VTextField
-                  v-model.number="paquete.role"
+                <v-select
+                  v-model="paquete.role"
                   label="Rol"
-                  type="number"
-                />
+                  :items="roles"
+                  item-title="rol_name"
+                  item-value="id"
+                  required
+                  class="mb-2"
+                ></v-select>
               </VCol>
               <div class="d-flex align-center my-6">
                 <VCheckbox
                   id="privacy-policy"
-                  v-model="form.privacyPolicies"
+                  v-moadel="form.privacyPolicies"
                   inline
                 />
                 <VLabel
@@ -125,12 +131,14 @@ const isPasswordVisible = ref(false)
                 </VLabel>
               </div>
 
-              <VBtn
+              <v-btn
                 block
                 @click="registrar"
+                type="submit"
+                to="register"
               >
                 Sign up
-              </VBtn>
+              </v-btn>
             </VCol>
           </VRow>
         </VForm>
@@ -173,11 +181,13 @@ export default {
   data() {
     return {
       valid: false,
+      roles: [],
       paquete: {
         name: '',
         email: '',
         cedula: '',
         telefono: '',
+
         password: '',
         role: null,
       },
@@ -187,6 +197,9 @@ export default {
         required: value => !!value || 'Este campo es obligatorio.',
       },
     }
+  },
+  mounted() {
+    this.fetchRoles()
   },
 
   methods: {
@@ -207,6 +220,14 @@ export default {
         this.dialog = false
       } catch (error) {
         console.error('Error al enviar datos:', error)
+      }
+    },
+    async fetchRoles() {
+      try {
+        const response = await axios.get('http://localhost:3000/roles')
+        this.roles = response.data
+      } catch (error) {
+        console.error('Error al obtener los roles:', error)
       }
     },
 

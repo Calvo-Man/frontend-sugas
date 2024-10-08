@@ -24,7 +24,7 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     <VerticalNavLink
       v-if="userRole === 'admin'"
       :item="{
-        title: 'Asignar Comptencias',
+        title: 'Asignar Competencias',
         badgeClass: 'bg-light-primary text-primary',
         to: 'programa-asignar',
       }"
@@ -50,6 +50,30 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
         title: 'Crear Competencia',
         badgeClass: 'bg-light-primary text-primary',
         to: 'competencia',
+      }"
+    />
+  </VerticalNavGroup>
+  <VerticalNavGroup
+    :item="{
+      title: 'Usuarios',
+      badgeClass: 'bg-error',
+      icon: 'ri-home-smile-line',
+    }"
+  >
+    <VerticalNavLink
+      v-if="userRole === 'admin'"
+      :item="{
+        title: 'Register',
+        icon: 'ri-user-add-line',
+        to: 'register',
+      }"
+    />
+    <VerticalNavLink
+      v-if="userRole === 'admin'"
+      :item="{
+        title: 'Asignar Programa',
+        icon: 'ri-user-add-line',
+        to: 'asignar-programa',
       }"
     />
   </VerticalNavGroup>
@@ -155,14 +179,6 @@ import VerticalNavLink from '@layouts/components/VerticalNavLink.vue'
     }"
   />
 
-  <VerticalNavLink
-    v-if="userRole === 'admin'"
-    :item="{
-      title: 'Register',
-      icon: 'ri-user-add-line',
-      to: 'register',
-    }"
-  />
   <VerticalNavLink
     :item="{
       title: 'Error',

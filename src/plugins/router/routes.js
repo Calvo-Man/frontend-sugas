@@ -56,6 +56,11 @@ export const routes = [
         component: () => import('@/pages/competencia/competencia.vue'),
       },
       {
+        path: 'asignar-programa',
+        meta: { requiresAdmin: true },
+        component: () => import('@/pages/usuarios/asignarProgramas.vue'),
+      },
+      {
         path: 'icons',
         component: () => import('@/pages/icons.vue'),
       },
