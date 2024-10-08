@@ -100,19 +100,31 @@ export default {
   },
   async mounted() {
     this.fetchCompetenciasPorPrograma()
-
-    this.fetchProgramas()
+    await this.showProgramByRole()
   },
   methods: {
     async fetchCompetenciasPorPrograma() {
-      const response = await axios.get(`http://localhost:3000/programa/${this.programaSelected}/competencias`, {
-        headers: {
-          Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
-        },
-      })
-      this.competencias = response.data
+      if (this.programaSelected) {
+        try {
+          const response = await axios.get(`http://localhost:3000/programa/${this.programaSelected}/competencias`, {
+            headers: {
+              Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+            },
+          })
+          this.competencias = response.data
 
-      this.$emit('plistado')
+          this.$emit('plistado')
+        } catch (error) {
+          console.error('Error fetching competencies:', error)
+        }
+      }
+    },
+    async showProgramByRole() {
+      if (this.userRole === 'admin') {
+        await this.fetchProgramas()
+      } else if (this.userRole === 'instructor') {
+        await this.fetchProgramasAsignadas()
+      }
     },
 
     async fetchProgramas() {
@@ -125,6 +137,21 @@ export default {
         this.programs = response.data
       } catch (error) {
         console.error('Error fetching programs:', error)
+      }
+    },
+    async fetchProgramasAsignadas() {
+      try {
+        const response = await axios.get(
+          `http://localhost:3000/user/${this.$store.getters.getUser.id}/programas-asignados`,
+          {
+            headers: {
+              Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
+            },
+          },
+        )
+        this.programs = response.data // Guardar las competencias asignadas
+      } catch (error) {
+        console.error('Error fetching assigned competencies:', error)
       }
     },
 
