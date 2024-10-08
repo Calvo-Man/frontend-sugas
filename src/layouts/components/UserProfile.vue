@@ -48,7 +48,7 @@ import avatar1 from '@images/avatars/avatar-1.png'
             </template>
 
             <VListItemTitle class="font-weight-semibold"> John Doe </VListItemTitle>
-            <VListItemSubtitle>Admin</VListItemSubtitle>
+            <VListItemSubtitle>{{ role }}</VListItemSubtitle>
           </VListItem>
           <VDivider class="my-2" />
 
@@ -131,13 +131,21 @@ import avatar1 from '@images/avatars/avatar-1.png'
 </template>
 <script>
 export default {
-  data: () => ({}),
+  data: () => ({
+    role: '',
+  }),
   methods: {
     logout() {
       this.$store.commit('setUser', null)
       this.$store.commit('setUserRole', null)
       this.$store.dispatch('logout')
     },
+    userRole() {
+      this.role = this.$store.getters.getUser.rol.toUpperCase()
+    },
+  },
+  mounted() {
+    this.userRole()
   },
 }
 </script>
