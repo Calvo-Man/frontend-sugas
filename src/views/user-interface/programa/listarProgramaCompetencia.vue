@@ -17,7 +17,7 @@
       item-title="nombre"
       item-value="id"
       class="mx-auto w-50"
-      @update:model-value="recargar"
+      @update:model-value="fetchCompetenciasPorPrograma"
     ></v-select>
     <VCardText class="d-flex flex-column gap-y-8">
       <v-data-table
@@ -26,7 +26,10 @@
         items-per-page="5"
         :search="search"
       >
-        <template #item.actions="{ item }">
+        <template
+          v-if="userRole === 'admin'"
+          v-slot:item.actions="{ item }"
+        >
           <v-btn
             class="mr-5"
             color="success"
@@ -72,26 +75,36 @@ export default {
       competencias: [],
       show: false,
       codigo: null,
-      headers: [
-        { title: 'Código', value: 'codigo' },
-        { title: 'Nombre', value: 'nombre' },
-        { title: 'Duración', value: 'duracion' },
-        { title: 'Acciones', value: 'actions', sortable: false },
-      ],
     }
   },
   computed: {
     filteredPrograms() {
       return this.programs.filter(program => program.codigo.toLowerCase().includes(this.search.toLowerCase()))
     },
+    userRole() {
+      return this.$store.state.user.rol // Obtener el rol desde el store
+    },
+    headers() {
+      const baseHeaders = [
+        { title: 'Código', value: 'codigo' },
+        { title: 'Nombre', value: 'nombre' },
+        { title: 'Duración', value: 'duracion' },
+      ]
+
+      if (this.userRole === 'admin') {
+        baseHeaders.push({ title: 'Acciones', value: 'actions', sortable: false })
+      }
+
+      return baseHeaders
+    },
   },
   async mounted() {
-    this.recargar()
+    this.fetchCompetenciasPorPrograma()
 
     this.fetchProgramas()
   },
   methods: {
-    async recargar() {
+    async fetchCompetenciasPorPrograma() {
       const response = await axios.get(`http://localhost:3000/programa/${this.programaSelected}/competencias`, {
         headers: {
           Authorization: `Bearer ${this.$store.getters.getUser.access_token}`,
@@ -136,14 +149,14 @@ export default {
       this.$notify({ text: 'Programa eliminado con éxito...', type: 'success' })
       this.show = false
       this.codigo = null
-      this.recargar()
+      this.fetchCompetenciasPorPrograma()
     },
   },
 
   watch: {
     estado(newValue) {
       if (newValue) {
-        this.recargar()
+        this.fetchCompetenciasPorPrograma()
       }
     },
   },
